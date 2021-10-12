@@ -34,6 +34,10 @@ func getFieldValue(repo string, run github.WorkflowRun, field string) string {
 		return *run.Event
 	case "status":
 		return *run.Status
+	case "created_at":
+		return run.CreatedAt.String()
+	case "updated_at":
+		return run.UpdatedAt.String()
 	}
 	return ""
 }
@@ -67,6 +71,11 @@ func getWorkflowRunsFromGithub() {
 						s = 3
 					} else if run.GetConclusion() == "queued" {
 						s = 4
+					}
+
+					timeSinceRun := time.Now().Unix() - run.UpdatedAt.Time.Unix()
+					if timeSinceRun >= 3600 {
+						continue
 					}
 
 					fields := getRelevantFields(repo, run)
